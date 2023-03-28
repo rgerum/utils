@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 
 class MockDir:
@@ -31,5 +32,6 @@ class MockDir:
                 for key in structure:
                     folder = parent / key
                     remove_mock(structure[key], folder)
-                    folder.rmdir()
+                    #folder.rmdir()
+                    shutil.rmtree(folder, ignore_errors=False, onerror=None)
         remove_mock(self.structure)
