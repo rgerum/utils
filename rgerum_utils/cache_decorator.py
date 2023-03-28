@@ -14,7 +14,7 @@ def cache(filename, version=1, force_write=False):
             output_path = Path(folder) / filename
             if output_path.exists() and not force_write:
                 loaded = np.load(output_path, allow_pickle=True)
-                if loaded["version"] == version:
+                if loaded.get("version", None) == version:
                     return tuple(loaded["output"])
             output = func(folder, *args, **kwargs)
             np.savez(output_path, output=output, version=version)
