@@ -22,7 +22,10 @@ def cache(filename, version=1, force_write=False):
                 loaded = np.load(output_path, allow_pickle=True)
                 # only return it if the version is the current one
                 if loaded.get("version", None) == version:
-                    return tuple(loaded["output"])
+                    try:
+                        return tuple(loaded["output"])
+                    except TypeError:
+                        return loaded["output"][()]
             # call the function
             output = func(folder, *args, **kwargs)
             # save the result
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     @cache("out_{i}.npz", version=1)
     def func(folder, i):
         print("run func", folder, i)
-        return np.ones(i), np.zeros(i)
+        return np.ones(i)#, np.zeros(i)
 
     with MockDir(file_structure):
         for i in range(1, 3):
