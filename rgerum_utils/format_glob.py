@@ -16,7 +16,7 @@ def format_glob(pattern, return_template=False):
         regexp_string3 = ""
         replacement = ""
         count = 1
-        for part in re.split("(\([^)]*\))", regexp_string):
+        for part in re.split(r"(\([^)]*\))", regexp_string):
             if part.startswith("("):
                 regexp_string3 += part
                 replacement += f"{{{part[4:-4]}}}"
@@ -59,6 +59,8 @@ def format_glob_pd(pattern, return_template=False):
     data = []
     for _, d in format_glob(pattern, return_template):
         data.append(d)
+    if len(data) == 0:
+        path_not_found_message(pattern)
     return pd.DataFrame(data)
 
 
