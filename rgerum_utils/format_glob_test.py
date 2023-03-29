@@ -91,9 +91,10 @@ def test_pandas():
 
     # compare with target
     target_data = pd.DataFrame([
-        {'run': 2, 'n': 3.0, 'name': 'Foo', 'filename': 'tmp/run-2/run_nodes3_name-Foo.txt'},
-        {'run': 2, 'n': 4.0, 'name': 'Bar', 'filename': 'tmp/run-2/run_nodes4_name-Bar.txt'},
-        {'run': 1, 'n': 4.0, 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'},
         {'run': 1, 'n': 3.0, 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'},
+        {'run': 1, 'n': 4.0, 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'},
+        {'run': 2, 'n': 4.0, 'name': 'Bar', 'filename': 'tmp/run-2/run_nodes4_name-Bar.txt'},
+        {'run': 2, 'n': 3.0, 'name': 'Foo', 'filename': 'tmp/run-2/run_nodes3_name-Foo.txt'},
     ])
-    pd.testing.assert_frame_equal(df.sort_values(by=['filename']), target_data.sort_values(by=['filename']))
+    pd.testing.assert_frame_equal(df.sort_values(by=['filename']).reset_index(drop=True),
+                                  target_data.sort_values(by=['filename']).reset_index(drop=True))
