@@ -1,7 +1,7 @@
 import pandas as pd
 from format_glob import format_glob, format_glob_pd
 
-""" Tests """
+
 def test_simple_folder():
     from mock_dir import MockDir
     # to test we create an artificial folder structure
@@ -19,12 +19,12 @@ def test_simple_folder():
 
     # compare with target
     target_data = [
-        ['tmp/run-1/run_nodes4_name-Bob.txt',
-         {'n': '4', 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'}],
         ['tmp/run-1/run_nodes3_name-Alice.txt',
          {'n': '3', 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'}],
+        ['tmp/run-1/run_nodes4_name-Bob.txt',
+         {'n': '4', 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'}],
     ]
-    assert collected_data == target_data
+    assert sorted(collected_data) == sorted(target_data)
 
 
 def test_glob_folder():
@@ -49,7 +49,7 @@ def test_glob_folder():
         ['tmp/run-1/run_nodes4_name-Bob.txt', {'n': '4', 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'}],
         ['tmp/run-1/run_nodes3_name-Alice.txt', {'n': '3', 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'}],
     ]
-    assert collected_data == target_data
+    assert sorted(collected_data) == sorted(target_data)
 
 
 def test_format_numbers():
@@ -74,7 +74,7 @@ def test_format_numbers():
         ['tmp/run-1/run_nodes4_name-Bob.txt', {'run': 1, 'n': 4.0, 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'}],
         ['tmp/run-1/run_nodes3_name-Alice.txt', {'run': 1, 'n': 3.0, 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'}],
     ]
-    assert collected_data == target_data
+    assert sorted(collected_data) == sorted(target_data)
 
 
 def test_pandas():
@@ -96,4 +96,4 @@ def test_pandas():
         {'run': 1, 'n': 4.0, 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'},
         {'run': 1, 'n': 3.0, 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'},
     ])
-    pd.testing.assert_frame_equal(df, target_data)
+    pd.testing.assert_frame_equal(df.sort_values(by=['filename']), target_data.sort_values(by=['filename']))
