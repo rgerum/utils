@@ -36,7 +36,7 @@ def format_glob(pattern, return_template=False):
     for file in output_base.rglob(str(Path(glob_string).relative_to(output_base))):#glob.glob(glob_string, recursive=True):
         file = str(Path(file))
         match = regexp_string2.match(file)
-        if match is None:
+        if match is None:  # pragma: no cover
             continue
         group = match.groupdict()
         group["filename"] = file
@@ -60,7 +60,7 @@ def format_glob_pd(pattern, return_template=False):
     for _, d in format_glob(pattern, return_template):
         data.append(d)
     if len(data) == 0:
-        path_not_found_message(pattern)
+        print(path_not_found_message(pattern), file=sys.stderr)
     return pd.DataFrame(data)
 
 
@@ -102,6 +102,9 @@ def path_not_found_message(name):
             similar_paths = list([p.name for p in path.parent.glob("*")])
             distances = [levenshteinDistance(p, str(path.name)) for p in similar_paths]
             import numpy as np
+            if len(distances) == 0:
+                distances = [np.inf]
+                similar_paths = ["none"]
             i = np.argmin(distances)
 
             target = f"no file/folder \"{path.name}\" found"
@@ -114,74 +117,7 @@ def path_not_found_message(name):
                 else:
                     source = f"in any of the {parent_folder_count} folders matching the pattern \"{path.parent}\""
             if distances[i] < 10:
-                print(f"WARNING: {source} {target}. Did you mean \"{similar_paths[i]}\"?", file=sys.stderr)
+                return f"WARNING: {source} {target}. Did you mean \"{similar_paths[i]}\"?"
             else:
-                print(f"WARNING: {source} {target}", file=sys.stderr)
-            break
+                return f"WARNING: {source} {target}"
         parent_folder_count = exists
-
-
-if __name__ == "__main__":
-    from mock_dir import MockDir
-    # to test we create an artificial folder structure
-    file_structure = {
-        "tmp": {
-            "run-1": ["run_nodes3_name-Alice.txt", "run_nodes4_name-Bob.txt", "run_nodes7_name-Foo.txt", "run_nodes7.8_name-Bar.txt"],
-            "run-2": ["run_nodes3_name-Alice.txt", "run_nodes4_name-Bob.txt", "run_nodes7_name-Foo.txt", "run_nodes7.8_name-Bar.txt"],
-            "running-2": ["run_nodes3_name-Alice.txt", "run_nodes4_name-Bob.txt", "run_nodes7_name-Foo.txt", "run_nodes7.8_name-Bar.txt"],
-            "boo-2": ["run_nodes3_name-Alice.txt", "run_nodes4_name-Bob.txt", "run_nodes7_name-Foo.txt", "run_nodes7.8_name-Bar.txt"],
-        }
-    }
-    with MockDir(file_structure):
-        # get files from one folder
-        for filename, data in format_glob("tmp/run-1/run_nodes{n}_name-{name}.txt"):
-            print(filename, data)
-        """
-        tmp/run-1/run_nodes4_name-Bob.txt {'n': '4', 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'}
-        tmp/run-1/run_nodes7_name-Foo.txt {'n': '7', 'name': 'Foo', 'filename': 'tmp/run-1/run_nodes7_name-Foo.txt'}
-        tmp/run-1/run_nodes7.8_name-Bar.txt {'n': '7.8', 'name': 'Bar', 'filename': 'tmp/run-1/run_nodes7.8_name-Bar.txt'}
-        tmp/run-1/run_nodes3_name-Alice.txt {'n': '3', 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'}
-        """
-
-        # get all sub folders
-        for filename, data in format_glob("tmp/**/run_nodes{n}_name-{name}.txt"):
-            print(filename, data)
-        """                
-        tmp/run-2/run_nodes4_name-Bob.txt {'n': '4', 'name': 'Bob', 'filename': 'tmp/run-2/run_nodes4_name-Bob.txt'}
-        tmp/run-2/run_nodes7_name-Foo.txt {'n': '7', 'name': 'Foo', 'filename': 'tmp/run-2/run_nodes7_name-Foo.txt'}
-        tmp/run-2/run_nodes7.8_name-Bar.txt {'n': '7.8', 'name': 'Bar', 'filename': 'tmp/run-2/run_nodes7.8_name-Bar.txt'}
-        tmp/run-2/run_nodes3_name-Alice.txt {'n': '3', 'name': 'Alice', 'filename': 'tmp/run-2/run_nodes3_name-Alice.txt'}
-        tmp/run-1/run_nodes4_name-Bob.txt {'n': '4', 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'}
-        tmp/run-1/run_nodes7_name-Foo.txt {'n': '7', 'name': 'Foo', 'filename': 'tmp/run-1/run_nodes7_name-Foo.txt'}
-        tmp/run-1/run_nodes7.8_name-Bar.txt {'n': '7.8', 'name': 'Bar', 'filename': 'tmp/run-1/run_nodes7.8_name-Bar.txt'}
-        tmp/run-1/run_nodes3_name-Alice.txt {'n': '3', 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'}
-        """
-
-        # convert to int or float
-        for filename, data in format_glob("tmp/run-{run:d}/run_nodes{n:f}_name-{name}.txt"):
-            print(filename, data)
-        """
-        tmp/run-2/run_nodes4_name-Bob.txt {'run': 2, 'n': 4.0, 'name': 'Bob', 'filename': 'tmp/run-2/run_nodes4_name-Bob.txt'}
-        tmp/run-2/run_nodes7_name-Foo.txt {'run': 2, 'n': 7.0, 'name': 'Foo', 'filename': 'tmp/run-2/run_nodes7_name-Foo.txt'}
-        tmp/run-2/run_nodes7.8_name-Bar.txt {'run': 2, 'n': 7.8, 'name': 'Bar', 'filename': 'tmp/run-2/run_nodes7.8_name-Bar.txt'}
-        tmp/run-2/run_nodes3_name-Alice.txt {'run': 2, 'n': 3.0, 'name': 'Alice', 'filename': 'tmp/run-2/run_nodes3_name-Alice.txt'}
-        tmp/run-1/run_nodes4_name-Bob.txt {'run': 1, 'n': 4.0, 'name': 'Bob', 'filename': 'tmp/run-1/run_nodes4_name-Bob.txt'}
-        tmp/run-1/run_nodes7_name-Foo.txt {'run': 1, 'n': 7.0, 'name': 'Foo', 'filename': 'tmp/run-1/run_nodes7_name-Foo.txt'}
-        tmp/run-1/run_nodes7.8_name-Bar.txt {'run': 1, 'n': 7.8, 'name': 'Bar', 'filename': 'tmp/run-1/run_nodes7.8_name-Bar.txt'}
-        tmp/run-1/run_nodes3_name-Alice.txt {'run': 1, 'n': 3.0, 'name': 'Alice', 'filename': 'tmp/run-1/run_nodes3_name-Alice.txt'}
-        """
-
-        # or get the result as a pandas dataframe
-        df = format_glob_pd("tmp/run-{run:d}/run_nodes{n:f}_name-{name}.txt")
-        print(df)
-        """
-           run    n   name                             filename
-        0    2  4.0    Bob    tmp/run-2/run_nodes4_name-Bob.txt
-        1    2  7.0    Foo    tmp/run-2/run_nodes7_name-Foo.txt
-        2    2  7.8    Bar  tmp/run-2/run_nodes7.8_name-Bar.txt
-        3    2  3.0  Alice  tmp/run-2/run_nodes3_name-Alice.txt
-        4    1  4.0    Bob    tmp/run-1/run_nodes4_name-Bob.txt
-        5    1  7.0    Foo    tmp/run-1/run_nodes7_name-Foo.txt
-        6    1  7.8    Bar  tmp/run-1/run_nodes7.8_name-Bar.txt
-        7    1  3.0  Alice  tmp/run-1/run_nodes3_name-Alice.txt
-        """

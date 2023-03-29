@@ -108,7 +108,7 @@ def test_different_version():
 
         multiplier = 2
         @cache("out.npz", version=1)
-        def func(folder, i):
+        def func(folder, i):  # pragma: no cover
             nonlocal multiplier
             return np.ones(i) * multiplier
 
