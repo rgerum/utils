@@ -48,7 +48,8 @@ def test_two_output_array():
             results2.append(func(f"tmp/run-{i}", i))
 
         for r, r2 in zip(results, results2):
-            assert (r == r2).all()
+            assert (r[0] == r2[0]).all()
+            assert (r[1] == r2[1]).all()
 
 
 def test_dict_output():
@@ -68,7 +69,7 @@ def test_dict_output():
             results2.append(func(f"tmp/run-{i}", i))
 
         for r, r2 in zip(results, results2):
-            assert (r == r2).all()
+            assert r == r2
 
 
 def test_format_filename_output():
