@@ -95,7 +95,7 @@ def test_pandas():
         f = io.StringIO()
         with contextlib.redirect_stderr(f):
             df2 = format_glob_pd("tmp2/run-{run:d}/run_nodes{n:f}_name-{name}.txt")
-        assert f.getvalue() == F'WARNING: in folder "{Path(__file__).parent}" no file/folder "tmp2" found. Did you mean "tmp"?\n'
+        assert f.getvalue() == F'WARNING: in folder "{Path().absolute()}" no file/folder "tmp2" found. Did you mean "tmp"?\n'
 
     # compare with target
     target_data = pd.DataFrame([
@@ -144,7 +144,7 @@ def test_not_found_message():
     }
     collected_data = []
     with MockDir(file_structure):
-        assert path_not_found_message("tmp/run-3/run_nodes3_name-Foo.txt") == F'WARNING: in folder "{Path(__file__).parent}/tmp" no file/folder "run-3" found. Did you mean "run-2"?'
-        assert path_not_found_message("tmp/run-*/run_nodes5_name-Foo.txt") == F'WARNING: in any of the 2 folders matching the pattern "{Path(__file__).parent}/tmp/run-*" no file/folder "run_nodes5_name-Foo.txt" found'
-        assert path_not_found_message("tmp/run-*/run_nodes5_name-*.txt") == F'WARNING: in any of the 2 folders matching the pattern "{Path(__file__).parent}/tmp/run-*" pattern "run_nodes5_name-*.txt" not found'
-        assert path_not_found_message("tmp/*-1/run_nodes5_name-*.txt") == F'WARNING: in the only folder matching the pattern "{Path(__file__).parent}/tmp/*-1" pattern "run_nodes5_name-*.txt" not found'
+        assert path_not_found_message("tmp/run-3/run_nodes3_name-Foo.txt") == F'WARNING: in folder "{Path().absolute()}/tmp" no file/folder "run-3" found. Did you mean "run-2"?'
+        assert path_not_found_message("tmp/run-*/run_nodes5_name-Foo.txt") == F'WARNING: in any of the 2 folders matching the pattern "{Path().absolute()}/tmp/run-*" no file/folder "run_nodes5_name-Foo.txt" found'
+        assert path_not_found_message("tmp/run-*/run_nodes5_name-*.txt") == F'WARNING: in any of the 2 folders matching the pattern "{Path().absolute()}/tmp/run-*" pattern "run_nodes5_name-*.txt" not found'
+        assert path_not_found_message("tmp/*-1/run_nodes5_name-*.txt") == F'WARNING: in the only folder matching the pattern "{Path().absolute()}/tmp/*-1" pattern "run_nodes5_name-*.txt" not found'
